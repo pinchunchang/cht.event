@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>30秒測出你的 YouTube 影音型態 | 中華電信 x YouTube Premium</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // ==========================================
+        // 🎨 自由調整整個網頁的主題色碼與按鈕顏色！
+        // ==========================================
+        const THEME_COLORS = {
+            chtRed: '#E30613',       // 中華電信紅
+            chtDarkRed: '#B3040E',   // 中華電信深紅 (按鈕 Hover)
+            ytRed: '#FF0000',        // YouTube 紅
+            primaryBtn: '#E30613',   // 🚀「開始測驗」與「結果頁按鈕」的統一顏色 (可在此修改色碼)
+            primaryBtnHover: '#B3040E' // 按鈕 Hover 顏色
+        };
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        chtRed: THEME_COLORS.chtRed,
+                        chtDarkRed: THEME_COLORS.chtDarkRed,
+                        ytRed: THEME_COLORS.ytRed,
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="h-full bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100 text-slate-800 font-sans antialiased flex flex-col justify-between selection:bg-chtRed selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="w-full bg-white/80 backdrop-blur-md border-b border-sky-100 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="font-bold text-sm text-slate-700 flex items-center">
+                    <i class="fa-solid fa-signal text-chtRed mr-1.5"></i> 中華電信 x YouTube Premium 影音型態測驗
+                </span>
+            </div>
+            <button onclick="resetApp()" class="text-xs text-slate-500 hover:text-slate-800 transition flex items-center space-x-1 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span class="hidden sm:inline">重新測驗</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6">
+        <div class="w-full max-w-xl mx-auto">
+
+            <!-- Welcome / Landing Screen -->
+            <div id="screen-welcome" class="bg-white/90 backdrop-blur-xl border border-sky-100 rounded-3xl p-6 sm:p-10 shadow-xl shadow-sky-950/5 relative overflow-hidden text-center">
+                <div class="absolute -right-16 -top-16 w-48 h-48 bg-sky-400/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Chunghwa Telecom x YouTube Premium Logo Lockup Display (No Borders) -->
+                <div class="flex items-center justify-center space-x-3 sm:space-x-5 mb-6">
+                    <!-- Chunghwa Telecom Logo Image -->
+                    <div class="flex items-center justify-center w-32 h-16 sm:w-36 sm:h-20">
+                        <!-- 💡 圖片放置處：請將 src 替換為你的中華電信 logo 圖片網址 (.jpg / .png / .webp) -->
+                        <img src="https://live.staticflickr.com/65535/55537042794_3f2fe55907_z.jpg" alt="中華電信 Chunghwa Telecom" class="max-h-full max-w-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/120x50/ffffff/004080?text=Chunghwa';">
+                    </div>
+                    <!-- X separator -->
+                    <span class="text-slate-400 font-extrabold text-lg sm:text-xl">×</span>
+                    <!-- YouTube Premium Logo Image -->
+                    <div class="flex items-center justify-center w-32 h-16 sm:w-36 sm:h-20">
+                        <!-- 💡 圖片放置處：請將 src 替換為你的 YouTube Premium logo 圖片網址 (.jpg / .png / .webp) -->
+                        <img src="https://live.staticflickr.com/65535/55537001578_ba65be98f3_z.jpg" alt="YouTube Premium" class="max-h-full max-w-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/120x50/ffffff/ff0000?text=YouTube+Premium';">
+                    </div>
+                </div>
+
+                <!-- Big Title -->
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-3 text-slate-900">
+                    30 秒測出你的 YouTube 影音型態
+                </h1>
+                
+                <!-- Subtitle -->
+                <p class="text-slate-600 text-sm sm:text-base mb-8 max-w-md mx-auto leading-relaxed font-medium">
+                    完成測驗申辦再送 <span class="text-chtRed font-bold">HAMI POINT</span> 專屬優惠！
+                </p>
+
+                <!-- Start Button -->
+                <button onclick="startQuiz()" class="w-full py-4 text-white font-bold rounded-2xl shadow-lg shadow-chtRed/30 transition transform active:scale-95 flex items-center justify-center space-x-2 text-base" style="background-color: var(--primary-btn-color, #E30613);">
+                    <span>開始測驗</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Quiz Screen (Hidden Initially) -->
+            <div id="screen-quiz" class="hidden bg-white/90 backdrop-blur-xl border border-sky-100 rounded-3xl p-6 sm:p-10 shadow-xl shadow-sky-950/5 relative">
+                <!-- Progress Bar -->
+                <div class="flex items-center justify-between mb-4">
+                    <span id="question-counter" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Question 1 of 4</span>
+                    <span id="question-percentage" class="text-xs font-bold text-chtRed">25%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full mb-8 overflow-hidden">
+                    <div id="progress-bar" class="bg-gradient-to-r from-chtRed to-red-500 h-full transition-all duration-300 rounded-full" style="width: 25%;"></div>
+                </div>
+
+                <!-- Question Title -->
+                <h2 id="question-title" class="text-lg sm:text-xl font-bold text-slate-900 mb-6 leading-snug">
+                    載入中...
+                </h2>
+
+                <!-- Options Container -->
+                <div id="options-container" class="space-y-3 mb-6">
+                    <!-- Options injected dynamically -->
+                </div>
+
+                <!-- Back button inside quiz -->
+                <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                    <button onclick="prevQuestion()" id="btn-prev" class="text-xs text-slate-500 hover:text-slate-800 transition flex items-center space-x-1.5 py-2 px-3 rounded-lg hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-transparent" disabled>
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>上一題</span>
+                    </button>
+                    <span class="text-xs text-slate-400 font-medium">中華電信 x YouTube Premium</span>
+                </div>
+            </div>
+
+            <!-- Loading Screen (Hidden Initially) -->
+            <div id="screen-loading" class="hidden bg-white/90 backdrop-blur-xl border border-sky-100 rounded-3xl p-10 shadow-xl text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 text-red-500 mb-6 animate-spin">
+                    <i class="fa-solid fa-circle-notch text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">正在分析你的影音與流量型態...</h3>
+                <p class="text-slate-500 text-sm">為您配對最適合的中華電信方案與 Hami Point 回饋</p>
+            </div>
+
+            <!-- Result Screen (Hidden Initially) -->
+            <div id="screen-result" class="hidden bg-white/90 backdrop-blur-xl border border-sky-100 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-20 -top-20 w-40 h-40 bg-chtRed/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <!-- Badge Type Tag -->
+                <div class="inline-flex items-center space-x-1.5 bg-red-50 text-chtRed text-xs font-bold px-3 py-1.5 rounded-full mb-3 border border-red-200">
+                    <i class="fa-solid fa-medal"></i>
+                    <span id="result-badge-label">測驗結果分析</span>
+                </div>
+
+                <!-- Requirement Tag Badge -->
+                <div id="result-req-tag" class="inline-flex items-center space-x-1.5 bg-sky-50 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-full mb-4 border border-sky-200 ml-2">
+                    <i class="fa-solid fa-bolt text-amber-500"></i>
+                    <span id="result-req-text">最在意：無廣告干擾</span>
+                </div>
+
+                <h1 id="result-title" class="text-xl sm:text-2xl font-extrabold text-slate-900 mb-2 leading-snug">
+                    <!-- Result Title -->
+                </h1>
+                
+                <p id="result-subtitle" class="text-chtRed font-semibold text-sm mb-6">
+                    <!-- Subtitle Quote -->
+                </p>
+
+                <!-- Description Card -->
+                <div class="bg-sky-50/60 border border-sky-100 rounded-2xl p-5 mb-6 text-slate-700 text-sm leading-relaxed space-y-3">
+                    <p id="result-desc-1"></p>
+                    <p id="result-desc-2"></p>
+                </div>
+
+                <!-- Chunghwa Recommendation Box -->
+                <div class="bg-gradient-to-br from-red-50/50 to-sky-50/50 border border-red-200 rounded-2xl p-5 mb-6">
+                    <div class="flex items-center space-x-2 text-chtRed font-bold text-sm mb-2">
+                        <i class="fa-solid fa-gift"></i>
+                        <span id="result-cht-title">中華電信推薦方案</span>
+                    </div>
+                    <p id="result-cht-desc" class="text-slate-700 text-xs sm:text-sm leading-relaxed mb-4">
+                        <!-- CHT recommendation text -->
+                    </p>
+                    <a id="result-cta-link" href="#" target="_blank" class="w-full py-3.5 px-4 text-white font-bold rounded-xl shadow-lg shadow-chtRed/30 transition flex items-center justify-center space-x-2 text-sm" style="background-color: var(--primary-btn-color, #E30613);">
+                        <span id="result-cta-text">查看我的方案</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+
+                <!-- Footer Actions in Result -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button onclick="shareResult()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs sm:text-sm transition flex items-center justify-center space-x-2 border border-slate-200">
+                        <i class="fa-solid fa-share-nodes text-chtRed"></i>
+                        <span>分享測驗結果</span>
+                    </button>
+                    <button onclick="resetApp()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs sm:text-sm transition flex items-center justify-center space-x-2 border border-slate-200">
+                        <i class="fa-solid fa-rotate-right text-chtRed"></i>
+                        <span>重新測驗一次</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-4 text-center text-xs text-slate-500 border-t border-sky-100">
+        <p>© 2026 中華電信 Chunghwa Telecom Co., Ltd. 版權所有 | 行銷面試作品展示</p>
+    </footer>
+
+    <!-- Custom Modal for Notifications -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl">
+            <div id="modal-icon" class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4 text-xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 id="modal-title" class="text-base font-bold text-slate-900 mb-2">已複製連結！</h3>
+            <p id="modal-message" class="text-slate-600 text-xs mb-6">連結已成功複製至剪貼簿，快分享給好友一起測驗吧！</p>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold rounded-xl text-xs transition border border-slate-200">
+                確定
+            </button>
+        </div>
+    </div>
+
+    <!-- Quiz Logic Script -->
+    <script>
+        // ==========================================
+        // 🎨 套用自定義按鈕顏色變數 (同步控制首頁與結果頁 CTA 按鈕)
+        // ==========================================
+        document.documentElement.style.setProperty('--primary-btn-color', THEME_COLORS.primaryBtn);
+
+        const questions = [
+            {
+                id: 1,
+                title: "Q1｜週末有空的時候，你比較常怎麼過？",
+                subtitle: "抓取使用場景",
+                options: [
+                    { text: "出門走走，搭車時順便聽歌", mobileScore: 2, homeScore: 0 },
+                    { text: "窩在沙發上追劇", mobileScore: 0, homeScore: 2 },
+                    { text: "白天出門，晚上繼續追劇", mobileScore: 1, homeScore: 1 },
+                    { text: "找間喜歡的店坐下來休息", mobileScore: 1, homeScore: 0 }
+                ]
+            },
+            {
+                id: 2,
+                title: "Q2｜突然多出一個小時，你最可能拿來做什麼？",
+                subtitle: "抓取影音需求",
+                options: [
+                    { text: "戴上耳機，聽歌、Podcast 放空", videoDemand: 1 },
+                    { text: "滑幾支影片，看看最近大家在看什麼", videoDemand: 1 },
+                    { text: "找一部想看的電影", videoDemand: 2 },
+                    { text: "做點自己的事，順便放點音樂", videoDemand: 0 }
+                ]
+            },
+            {
+                id: 3,
+                title: "Q3｜如果今天出門一整天，你的手機網路大概會怎麼用？",
+                subtitle: "抓取網路需求",
+                options: [
+                    { text: "LINE、地圖、社群為主，有 Wi-Fi 就連", netDemand: 0 },
+                    { text: "音樂、Podcast 幾乎一路放著", netDemand: 1 },
+                    { text: "YouTube、短影音直接用行動網路看", netDemand: 2 },
+                    { text: "影片、音樂、熱點、下載都會用", netDemand: 2 }
+                ]
+            },
+            {
+                id: 4,
+                title: "Q4｜最讓你受不了的 YouTube 時刻是？",
+                subtitle: "決定痛點與廣告溝通主軸",
+                options: [
+                    { text: "看到一半突然被廣告打斷", needTag: "無廣告干擾" },
+                    { text: "切出去回訊息，影片就停了", needTag: "背景持續播放" },
+                    { text: "沒網路時，想看的影片卻看不了", needTag: "離線順暢觀看" },
+                    { text: "換個地方，就沒辦法順順接著看", needTag: "跨場景無縫接軌" }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+
+        const screenWelcome = document.getElementById('screen-welcome');
+        const screenQuiz = document.getElementById('screen-quiz');
+        const screenLoading = document.getElementById('screen-loading');
+        const screenResult = document.getElementById('screen-result');
+        const questionCounter = document.getElementById('question-counter');
+        const questionPercentage = document.getElementById('question-percentage');
+        const progressBar = document.getElementById('progress-bar');
+        const questionTitle = document.getElementById('question-title');
+        const optionsContainer = document.getElementById('options-container');
+        const btnPrev = document.getElementById('btn-prev');
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            screenWelcome.classList.add('hidden');
+            screenResult.classList.add('hidden');
+            screenQuiz.classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentQuestionIndex];
+            questionCounter.innerText = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            const percent = ((currentQuestionIndex + 1) / questions.length) * 100;
+            questionPercentage.innerText = `${Math.round(percent)}%`;
+            progressBar.style.width = `${percent}%`;
+            questionTitle.innerText = q.title;
+
+            btnPrev.disabled = currentQuestionIndex === 0;
+
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 sm:p-4.5 rounded-2xl bg-white hover:bg-sky-50/85 border border-slate-200 hover:border-red-400 text-slate-700 transition font-medium text-sm flex items-center justify-between group active:scale-[0.99] shadow-sm";
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-xl bg-slate-100 border border-slate-200 text-chtRed font-bold text-xs flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition">${String.fromCharCode(65 + idx)}</span>
+                        <span>${opt.text}</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-slate-400 group-hover:text-chtRed transition"></i>
+                `;
+                btn.onclick = () => selectOption(opt);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(opt) {
+            userAnswers.push(opt);
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                userAnswers.pop();
+                renderQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            screenQuiz.classList.add('hidden');
+            screenLoading.classList.remove('hidden');
+
+            setTimeout(() => {
+                screenLoading.classList.add('hidden');
+                calculateAndShowResult();
+            }, 1200);
+        }
+
+        function calculateAndShowResult() {
+            screenResult.classList.remove('hidden');
+
+            // 1. 計算各項分數
+            let mobileScore = userAnswers[0] && userAnswers[0].mobileScore !== undefined ? userAnswers[0].mobileScore : 0;
+            let homeScore = userAnswers[0] && userAnswers[0].homeScore !== undefined ? userAnswers[0].homeScore : 0;
+            let videoDemand = userAnswers[1] && userAnswers[1].videoDemand !== undefined ? userAnswers[1].videoDemand : 0;
+            let netDemand = userAnswers[2] && userAnswers[2].netDemand !== undefined ? userAnswers[2].netDemand : 0;
+
+            // Q4 痛點需求標籤
+            let q4Ans = userAnswers[3];
+            let needTagText = q4Ans && q4Ans.needTag ? q4Ans.needTag : "無廣告干擾";
+            document.getElementById('result-req-text').innerText = `最在意：${needTagText}`;
+
+            let resultData = {};
+
+            // 2. 核心分流判定邏輯
+            if (videoDemand === 0 || (videoDemand <= 1 && netDemand === 0)) {
+                // 🌿 結果四｜輕量影音族
+                resultData = {
+                    badge: "🌿 輕量影音族",
+                    title: "「享受無廣告與背景播放，輕鬆自在看影音。」",
+                    subtitle: "影音型態：輕量休閒 ｜ 推薦：YouTube Premium 單獨訂閱",
+                    desc1: "你對影音與網路的使用有自己的節奏，不需要過度繁複的高速大流量方案。",
+                    desc2: "直接訂閱 YouTube Premium 方案，就能完美享受無廣告與背景播放，省心又實惠！",
+                    chtTitle: "中華電信 YouTube Premium 基礎優惠",
+                    chtDesc: "中華電信提供便利的加值服務訂閱，申辦 YouTube Premium 享有流暢體驗與 Hami Point 回饋！",
+                    ctaText: "查看 YouTube Premium 方案",
+                    ctaUrl: "https://www.cht.com.tw/home/campaign/digitalservices/ytp"
+                };
+            } else if (homeScore > mobileScore && videoDemand >= 1) {
+                // 🏠 結果一｜家庭影音族
+                resultData = {
+                    badge: "🏠 家庭影音族",
+                    title: "「你更享受回家後慢慢看影片的時間。」",
+                    subtitle: "影音型態：居家悠閒 ｜ 推薦：YouTube Premium 單獨訂閱",
+                    desc1: "你更常在家裡放鬆、看 YouTube 影片或享受完整的娛樂時光，追求沉浸式的影音享受。",
+                    desc2: "YouTube Premium 就能滿足你的主要影音需求，少一點廣告打斷，多一點完整的追劇時光。",
+                    chtTitle: "中華電信 YouTube Premium 優惠推薦",
+                    chtDesc: "中華電信提供穩定優質的加值服務，搭配 YouTube Premium 讓居家影音娛樂不卡頓，申辦即享 Hami Point 回饋！",
+                    ctaText: "查看 YouTube Premium 方案",
+                    ctaUrl: "https://www.cht.com.tw/home/campaign/digitalservices/ytp"
+                };
+            } else if (mobileScore > homeScore && videoDemand >= 1 && netDemand >= 1) {
+                // 📱 結果二｜行動影音族
+                resultData = {
+                    badge: "📱 行動影音族",
+                    title: "「你的 YouTube，跟著你走到哪看到哪。」",
+                    subtitle: "影音型態：行動移動 ｜ 推薦：精采 5G ＋ YouTube Premium",
+                    desc1: "你習慣利用通勤、等待或移動時間觀看 YouTube，對行動網路與影音流暢度有高度要求。",
+                    desc2: "中華電信「精采5G」高速行動網路搭配 YouTube Premium，背景播放與離線觀看隨開隨看，走到哪精彩到哪！",
+                    chtTitle: "中華電信「精采 5G」加值方案推薦",
+                    chtDesc: "申辦中華電信精采 5G 指定方案，直接自由選搭 YouTube Premium，加碼再送 Hami Point 專屬點數！",
+                    ctaText: "查看 5G 精采方案與 Hami Point",
+                    ctaUrl: "https://www.cht.com.tw/home/campaign/5gdigitalservice"
+                };
+            } else {
+                // 📱🏠 結果三｜雙網影音族 (行動分 = 居家分，或綜合需求高)
+                resultData = {
+                    badge: "📱🏠 雙網影音族",
+                    title: "「從通勤到回家，全方位極速影音體驗。」",
+                    subtitle: "影音型態：行動與居家雙場景 ｜ 推薦：精采 5G／雙網 ＋ YouTube Premium",
+                    desc1: "你經常在移動途中、戶外以及家中的不同場景切換使用網路與影音內容。",
+                    desc2: "穩定的行動網路與寬頻環境，加上 YouTube Premium 的無廣告與背景播放，才是滿足你日常娛樂的最佳組合！",
+                    chtTitle: "中華電信 5G 與加值服務推薦",
+                    chtDesc: "結合中華電信優質行動與數位加值服務，讓跨場景的你享受最穩定的高速連線與 Hami Point 回饋！",
+                    ctaText: "查看我的雙網與 5G 方案",
+                    ctaUrl: "https://www.cht.com.tw/home/campaign/5gdigitalservice"
+                };
+            }
+
+            document.getElementById('result-badge-label').innerText = resultData.badge;
+            document.getElementById('result-title').innerText = resultData.title;
+            document.getElementById('result-subtitle').innerText = resultData.subtitle;
+            document.getElementById('result-desc-1').innerText = resultData.desc1;
+            document.getElementById('result-desc-2').innerText = resultData.desc2;
+            document.getElementById('result-cht-title').innerText = resultData.chtTitle;
+            document.getElementById('result-cht-desc').innerText = resultData.chtDesc;
+            document.getElementById('result-cta-text').innerText = resultData.ctaText;
+            document.getElementById('result-cta-link').href = resultData.ctaUrl;
+        }
+
+        function resetApp() {
+            screenResult.classList.add('hidden');
+            screenQuiz.classList.add('hidden');
+            screenLoading.classList.add('hidden');
+            screenWelcome.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            userAnswers = [];
+        }
+
+        function shareResult() {
+            const dummyUrl = window.location.href;
+            const tempInput = document.createElement('textarea');
+            tempInput.value = `我剛剛在「30 秒測出你的 YouTube 影音型態」測驗中找到了專屬型態！快來測測看你是哪一種影音族群，解鎖中華電信與 Hami Point 專屬優惠吧！ ${dummyUrl}`;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showModal("連結已複製！", "測驗結果與推廣連結已成功複製至剪貼簿，快分享給親朋好友吧！");
+        }
+
+        function showModal(title, msg) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = msg;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        window.onload = function() {
+            // App initialized successfully
+        }
+    </script>
+</body>
+</html>
