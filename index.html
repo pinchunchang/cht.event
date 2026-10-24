@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>30秒測出你的 YouTube 影音型態 | 中華電信 x YouTube Premium</title>
+
+    <!-- Google Analytics 4 (GA4) 追蹤碼程式庫 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1N5R98MVCQ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        // 初始化 GA4 評估 ID (G-1N5R98MVCQ)
+        gtag('config', 'G-1N5R98MVCQ', {
+            'send_page_view': true // 自動追蹤瀏覽量 (Pageview) 與跳出率
+        });
+    </script>
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -55,7 +69,7 @@
                     <i class="fa-solid fa-signal text-chtRed mr-1.5"></i> 中華電信 x YouTube Premium 影音型態測驗
                 </span>
             </div>
-            <button onclick="resetApp()" class="text-xs text-slate-500 hover:text-slate-800 transition flex items-center space-x-1 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+            <button onclick="resetApp('header_button')" class="text-xs text-slate-500 hover:text-slate-800 transition flex items-center space-x-1 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
                 <i class="fa-solid fa-rotate-right"></i>
                 <span class="hidden sm:inline">重新測驗</span>
             </button>
@@ -71,18 +85,13 @@
                 <div class="absolute -right-16 -top-16 w-48 h-48 bg-sky-400/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                <!-- Chunghwa Telecom x YouTube Premium Logo Lockup Display (No Borders) -->
+                <!-- Chunghwa Telecom x YouTube Premium Logo Lockup Display -->
                 <div class="flex items-center justify-center space-x-3 sm:space-x-5 mb-6">
-                    <!-- Chunghwa Telecom Logo Image -->
                     <div class="flex items-center justify-center w-32 h-16 sm:w-36 sm:h-20">
-                        <!-- 💡 圖片放置處：請將 src 替換為你的中華電信 logo 圖片網址 (.jpg / .png / .webp) -->
                         <img src="https://live.staticflickr.com/65535/55537042794_3f2fe55907_z.jpg" alt="中華電信 Chunghwa Telecom" class="max-h-full max-w-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/120x50/ffffff/004080?text=Chunghwa';">
                     </div>
-                    <!-- X separator -->
                     <span class="text-slate-400 font-extrabold text-lg sm:text-xl">×</span>
-                    <!-- YouTube Premium Logo Image -->
                     <div class="flex items-center justify-center w-32 h-16 sm:w-36 sm:h-20">
-                        <!-- 💡 圖片放置處：請將 src 替換為你的 YouTube Premium logo 圖片網址 (.jpg / .png / .webp) -->
                         <img src="https://live.staticflickr.com/65535/55537001578_ba65be98f3_z.jpg" alt="YouTube Premium" class="max-h-full max-w-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/120x50/ffffff/ff0000?text=YouTube+Premium';">
                     </div>
                 </div>
@@ -183,7 +192,7 @@
                     <p id="result-cht-desc" class="text-slate-700 text-xs sm:text-sm leading-relaxed mb-4">
                         <!-- CHT recommendation text -->
                     </p>
-                    <a id="result-cta-link" href="#" target="_blank" class="w-full py-3.5 px-4 text-white font-bold rounded-xl shadow-lg shadow-chtRed/30 transition flex items-center justify-center space-x-2 text-sm" style="background-color: var(--primary-btn-color, #E30613);">
+                    <a id="result-cta-link" href="#" target="_blank" onclick="trackCtaClick()" class="w-full py-3.5 px-4 text-white font-bold rounded-xl shadow-lg shadow-chtRed/30 transition flex items-center justify-center space-x-2 text-sm" style="background-color: var(--primary-btn-color, #E30613);">
                         <span id="result-cta-text">查看我的方案</span>
                         <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                     </a>
@@ -195,7 +204,7 @@
                         <i class="fa-solid fa-share-nodes text-chtRed"></i>
                         <span>分享測驗結果</span>
                     </button>
-                    <button onclick="resetApp()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs sm:text-sm transition flex items-center justify-center space-x-2 border border-slate-200">
+                    <button onclick="resetApp('result_footer_button')" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs sm:text-sm transition flex items-center justify-center space-x-2 border border-slate-200">
                         <i class="fa-solid fa-rotate-right text-chtRed"></i>
                         <span>重新測驗一次</span>
                     </button>
@@ -224,11 +233,8 @@
         </div>
     </div>
 
-    <!-- Quiz Logic Script -->
+    <!-- Quiz Logic & GA Tracking Script -->
     <script>
-        // ==========================================
-        // 🎨 套用自定義按鈕顏色變數 (同步控制首頁與結果頁 CTA 按鈕)
-        // ==========================================
         document.documentElement.style.setProperty('--primary-btn-color', THEME_COLORS.primaryBtn);
 
         const questions = [
@@ -280,6 +286,7 @@
 
         let currentQuestionIndex = 0;
         let userAnswers = [];
+        let currentResultType = ""; // 儲存計算後的結果類型用於 GA
 
         const screenWelcome = document.getElementById('screen-welcome');
         const screenQuiz = document.getElementById('screen-quiz');
@@ -292,6 +299,14 @@
         const optionsContainer = document.getElementById('options-container');
         const btnPrev = document.getElementById('btn-prev');
 
+        // 📊 GA4 事件發送輔助函式
+        function trackEvent(eventName, params = {}) {
+            if (typeof gtag === 'function') {
+                gtag('event', eventName, params);
+            }
+        }
+
+        // 開始測驗
         function startQuiz() {
             currentQuestionIndex = 0;
             userAnswers = [];
@@ -299,8 +314,15 @@
             screenResult.classList.add('hidden');
             screenQuiz.classList.remove('hidden');
             renderQuestion();
+
+            // 📊 追蹤：點擊「開始測驗」
+            trackEvent('quiz_start', {
+                'event_category': 'Quiz',
+                'event_label': '開始測驗按鈕'
+            });
         }
 
+        // 渲染題目
         function renderQuestion() {
             const q = questions[currentQuestionIndex];
             questionCounter.innerText = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
@@ -322,13 +344,22 @@
                     </div>
                     <i class="fa-solid fa-chevron-right text-xs text-slate-400 group-hover:text-chtRed transition"></i>
                 `;
-                btn.onclick = () => selectOption(opt);
+                btn.onclick = () => selectOption(opt, idx);
                 optionsContainer.appendChild(btn);
             });
         }
 
-        function selectOption(opt) {
+        // 選擇選項
+        function selectOption(opt, optionIndex) {
             userAnswers.push(opt);
+
+            // 📊 追蹤：每一題的回答情況
+            trackEvent('quiz_answer', {
+                'question_number': currentQuestionIndex + 1,
+                'question_title': questions[currentQuestionIndex].title,
+                'selected_option': opt.text
+            });
+
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
                 renderQuestion();
@@ -337,6 +368,7 @@
             }
         }
 
+        // 返回上一題
         function prevQuestion() {
             if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
@@ -345,6 +377,7 @@
             }
         }
 
+        // 結束測驗
         function finishQuiz() {
             screenQuiz.classList.add('hidden');
             screenLoading.classList.remove('hidden');
@@ -355,25 +388,22 @@
             }, 1200);
         }
 
+        // 計算並顯示結果
         function calculateAndShowResult() {
             screenResult.classList.remove('hidden');
 
-            // 1. 計算各項分數
             let mobileScore = userAnswers[0] && userAnswers[0].mobileScore !== undefined ? userAnswers[0].mobileScore : 0;
             let homeScore = userAnswers[0] && userAnswers[0].homeScore !== undefined ? userAnswers[0].homeScore : 0;
             let videoDemand = userAnswers[1] && userAnswers[1].videoDemand !== undefined ? userAnswers[1].videoDemand : 0;
             let netDemand = userAnswers[2] && userAnswers[2].netDemand !== undefined ? userAnswers[2].netDemand : 0;
 
-            // Q4 痛點需求標籤
             let q4Ans = userAnswers[3];
             let needTagText = q4Ans && q4Ans.needTag ? q4Ans.needTag : "無廣告干擾";
             document.getElementById('result-req-text').innerText = `最在意：${needTagText}`;
 
             let resultData = {};
 
-            // 2. 核心分流判定邏輯
             if (videoDemand === 0 || (videoDemand <= 1 && netDemand === 0)) {
-                // 🌿 結果四｜輕量影音族
                 resultData = {
                     badge: "🌿 輕量影音族",
                     title: "「享受無廣告與背景播放，輕鬆自在看影音。」",
@@ -386,7 +416,6 @@
                     ctaUrl: "https://www.cht.com.tw/home/campaign/digitalservices/ytp"
                 };
             } else if (homeScore > mobileScore && videoDemand >= 1) {
-                // 🏠 結果一｜家庭影音族
                 resultData = {
                     badge: "🏠 家庭影音族",
                     title: "「你更享受回家後慢慢看影片的時間。」",
@@ -399,7 +428,6 @@
                     ctaUrl: "https://www.cht.com.tw/home/campaign/digitalservices/ytp"
                 };
             } else if (mobileScore > homeScore && videoDemand >= 1 && netDemand >= 1) {
-                // 📱 結果二｜行動影音族
                 resultData = {
                     badge: "📱 行動影音族",
                     title: "「你的 YouTube，跟著你走到哪看到哪。」",
@@ -412,7 +440,6 @@
                     ctaUrl: "https://www.cht.com.tw/home/campaign/5gdigitalservice"
                 };
             } else {
-                // 📱🏠 結果三｜雙網影音族 (行動分 = 居家分，或綜合需求高)
                 resultData = {
                     badge: "📱🏠 雙網影音族",
                     title: "「從通勤到回家，全方位極速影音體驗。」",
@@ -426,6 +453,8 @@
                 };
             }
 
+            currentResultType = resultData.badge;
+
             document.getElementById('result-badge-label').innerText = resultData.badge;
             document.getElementById('result-title').innerText = resultData.title;
             document.getElementById('result-subtitle').innerText = resultData.subtitle;
@@ -435,9 +464,30 @@
             document.getElementById('result-cht-desc').innerText = resultData.chtDesc;
             document.getElementById('result-cta-text').innerText = resultData.ctaText;
             document.getElementById('result-cta-link').href = resultData.ctaUrl;
+
+            // 📊 追蹤：完成測驗與分析結果
+            trackEvent('quiz_complete', {
+                'result_type': currentResultType,
+                'user_pain_point': needTagText
+            });
         }
 
-        function resetApp() {
+        // 📊 追蹤：點擊結果頁 CTA 按鈕
+        function trackCtaClick() {
+            trackEvent('cta_click', {
+                'result_type': currentResultType,
+                'target_url': document.getElementById('result-cta-link').href,
+                'button_text': document.getElementById('result-cta-text').innerText
+            });
+        }
+
+        // 重新測驗
+        function resetApp(source = 'general') {
+            // 📊 追蹤：重測動作
+            trackEvent('quiz_reset', {
+                'reset_source': source
+            });
+
             screenResult.classList.add('hidden');
             screenQuiz.classList.add('hidden');
             screenLoading.classList.add('hidden');
@@ -446,6 +496,7 @@
             userAnswers = [];
         }
 
+        // 分享結果
         function shareResult() {
             const dummyUrl = window.location.href;
             const tempInput = document.createElement('textarea');
@@ -454,6 +505,12 @@
             tempInput.select();
             document.execCommand('copy');
             document.body.removeChild(tempInput);
+
+            // 📊 追蹤：點擊分享
+            trackEvent('share', {
+                'method': 'copy_link',
+                'result_type': currentResultType
+            });
 
             showModal("連結已複製！", "測驗結果與推廣連結已成功複製至剪貼簿，快分享給親朋好友吧！");
         }
