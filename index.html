@@ -498,20 +498,85 @@
 
         // 分享結果
         function shareResult() {
-            const dummyUrl = window.location.href;
-            const tempInput = document.createElement('textarea');
-            tempInput.value = `我剛剛在「30 秒測出你的 YouTube 影音型態」測驗中找到了專屬型態！快來測測看你是哪一種影音族群，解鎖中華電信與 Hami Point 專屬優惠吧！ ${dummyUrl}`;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
+            // 固定您的 GitHub Pages 網址與分享內文，避免抓取不到網址
+            const targetUrl = window.location.href.includes('pinchunchang.github.io') 
+                ? window.location.href 
+                : 'https://pinchunchang.github.io/cht.event/';
 
+            const shareText = `我剛剛在「30 秒測出你的 YouTube 影音型態」測驗中找到了專屬型態！快來測測看你是哪一種影音族群，解鎖中華電信與 Hami Point 專屬優惠吧！\n\n${targetUrl}`;
+
+            // 1. 首選：嘗試使用 Web Share API (手機原生分享)
+            if (navigator.share) {
+                navigator.share({
+                    title: '30秒測出你的 YouTube 影音型態',
+                    text: shareText,
+                    url: targetUrl
+                }).then(() => {
+                    trackEvent('share', { 'method': 'native_share', 'result_type': currentResultType });
+                }).catch(() => {
+                    // 若使用者取消分享，降級為複製到剪貼簿
+                    copyTextToClipboard(shareText, targetUrl);
+                });
+            } else {
+                // 2. 備用：桌面版或不支援原生分享時複製到剪貼簿
+                copyTextToClipboard(shareText, targetUrl);
+            }
+        }
+
+        // 強力剪貼簿複製備用函式
+        function copyTextToClipboard(textToCopy, targetUrl) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    onCopySuccess();
+                }).catch(() => {
+                    fallbackCopyText(textToCopy);
+                });
+            } else {
+                fallbackCopyText(textToCopy);
+            }
+        }
+
+        // 最相容的傳統隱藏 DOM 複製法
+        function fallbackCopyText(textToCopy) {
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            
+            // 避免手機畫面滾動或跳動的 CSS 設定
+            textArea.style.position = "fixed";
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.width = "2em";
+            textArea.style.height = "2em";
+            textArea.style.padding = "0";
+            textArea.style.border = "none";
+            textArea.style.outline = "none";
+            textArea.style.boxShadow = "none";
+            textArea.style.background = "transparent";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    onCopySuccess();
+                } else {
+                    showModal("提示", `複製失敗，請手動複製網址：\n${targetUrl}`);
+                }
+            } catch (err) {
+                showModal("提示", `複製失敗，請手動複製網址：\n${targetUrl}`);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function onCopySuccess() {
             // 📊 追蹤：點擊分享
             trackEvent('share', {
                 'method': 'copy_link',
                 'result_type': currentResultType
             });
-
             showModal("連結已複製！", "測驗結果與推廣連結已成功複製至剪貼簿，快分享給親朋好友吧！");
         }
 
