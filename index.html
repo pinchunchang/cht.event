@@ -18,6 +18,34 @@
         });
     </script>
 
+    <!--【新增 1】Meta Pixel 基礎碼：請將 YOUR_META_PIXEL_ID 換成 Meta 事件管理工具提供的 Pixel ID -->
+    <script>
+        const META_PIXEL_ID = '2011018139575059';
+
+        // 只有填入有效 Pixel ID 時才載入，避免未設定時產生錯誤請求
+        if (META_PIXEL_ID && META_PIXEL_ID !== 'YOUR_META_PIXEL_ID') {
+            !function(f,b,e,v,n,t,s) {
+                if(f.fbq)return;
+                n=f.fbq=function(){n.callMethod ?
+                    n.callMethod.apply(n,arguments) : n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;
+                n.push=n;
+                n.loaded=!0;
+                n.version='2.0';
+                n.queue=[];
+                t=b.createElement(e);
+                t.async=!0;
+                t.src=v;
+                s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s);
+            }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+
+            fbq('init', META_PIXEL_ID);
+            fbq('track', 'PageView');
+        }
+    </script>
+    <!--【新增 1 結束】Meta Pixel 基礎碼 -->
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -60,6 +88,11 @@
     </style>
 </head>
 <body class="h-full bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100 text-slate-800 font-sans antialiased flex flex-col justify-between selection:bg-chtRed selection:text-white">
+
+    <!--【新增 1-1】Meta Pixel 無 JavaScript 備援 PageView -->
+    <noscript><img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=2011018139575059&ev=PageView&noscript=1"
+        alt="" /></noscript>
 
     <!-- Header Navigation -->
     <header class="w-full bg-white/80 backdrop-blur-md border-b border-sky-100 sticky top-0 z-50 shadow-sm">
@@ -299,11 +332,41 @@
         const optionsContainer = document.getElementById('options-container');
         const btnPrev = document.getElementById('btn-prev');
 
-        // 📊 GA4 事件發送輔助函式
+        //【新增 2】Meta Pixel 事件發送輔助函式
+        // Meta Pixel 尚未填入 ID 時，會自動略過，不影響測驗功能。
+        function trackMetaEvent(eventName, params = {}) {
+            if (typeof fbq === 'function') {
+                fbq('trackCustom', eventName, params);
+            }
+        }
+
+        //【修改 1】統一追蹤函式：同一個事件可同時送到 GA4 與 Meta Pixel
         function trackEvent(eventName, params = {}) {
             if (typeof gtag === 'function') {
                 gtag('event', eventName, params);
             }
+
+            // Meta 端使用獨立的自訂事件名稱，方便在事件管理工具建立受眾
+            const metaEventMap = {
+                'quiz_start': 'QuizStart',
+                'quiz_complete': 'QuizComplete',
+                'cta_click': 'OfferClick',
+                'quiz_reset': 'QuizReset',
+                'share': 'QuizShare'
+            };
+
+            if (metaEventMap[eventName]) {
+                trackMetaEvent(metaEventMap[eventName], params);
+            }
+        }
+
+        //【新增 3】將畫面上的中文結果轉成穩定的英文分眾代碼
+        function getSegmentCode(resultType) {
+            if (resultType.includes('輕量影音族')) return 'light_video';
+            if (resultType.includes('家庭影音族')) return 'family_video';
+            if (resultType.includes('行動影音族')) return 'mobile_video';
+            if (resultType.includes('雙網影音族')) return 'dual_network';
+            return 'unknown';
         }
 
         // 開始測驗
@@ -455,6 +518,30 @@
 
             currentResultType = resultData.badge;
 
+            //【新增 4】測驗結果分眾追蹤：GA4 記錄 segment 參數
+            // 例如 segment = mobile_video，可在 GA4 建立對應自訂受眾
+            const segmentCode = getSegmentCode(currentResultType);
+            trackEvent('segment_result', {
+                'segment': segmentCode,
+                'result_type': currentResultType,
+                'recommended_offer': resultData.ctaText
+            });
+
+            //【新增 5】Meta 依四種結果送出四種不同的自訂事件
+            // 在 Meta「網站自訂受眾」中，分別選擇對應事件名稱建立受眾
+            const metaSegmentEventMap = {
+                'light_video': 'Segment_light_video',
+                'family_video': 'Segment_family_video',
+                'mobile_video': 'Segment_mobile_video',
+                'dual_network': 'Segment_dual_network'
+            };
+            if (metaSegmentEventMap[segmentCode]) {
+                trackMetaEvent(metaSegmentEventMap[segmentCode], {
+                    'segment': segmentCode,
+                    'recommended_offer': resultData.ctaText
+                });
+            }
+
             document.getElementById('result-badge-label').innerText = resultData.badge;
             document.getElementById('result-title').innerText = resultData.title;
             document.getElementById('result-subtitle').innerText = resultData.subtitle;
@@ -468,6 +555,7 @@
             // 📊 追蹤：完成測驗與分析結果
             trackEvent('quiz_complete', {
                 'result_type': currentResultType,
+                'segment': getSegmentCode(currentResultType),
                 'user_pain_point': needTagText
             });
         }
